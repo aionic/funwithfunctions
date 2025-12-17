@@ -1,0 +1,45 @@
+name: Validate Bicep
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/bicep-validate.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/bicep-validate.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Install Bicep CLI
+      run: |
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+        chmod +x ./bicep
+        sudo mv ./bicep /usr/local/bin/bicep
+        bicep --version
+
+    - name: Bicep Lint
+      run: |
+        bicep build ./infra/main.bicep
+
+    - name: Bicep Validate
+      uses: azure/arm-deploy@v2
+      with:
+        scope: subscription
+        region: westus3
+        template: ./infra/main.bicep
+        parameters: ./infra/main.bicepparam
+        deploymentMode: Validate

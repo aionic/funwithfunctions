@@ -1,0 +1,245 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Weather API",
+    "description": "Azure Functions Weather API with monitoring and metrics",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Weather API Support",
+      "email": "support@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://{functionAppName}.azurewebsites.net/api",
+      "description": "Azure Functions endpoint",
+      "variables": {
+        "functionAppName": {
+          "default": "func-weather",
+          "description": "Your Azure Function App name"
+        }
+      }
+    },
+    {
+      "url": "http://localhost:7071/api",
+      "description": "Local development endpoint"
+    }
+  ],
+  "paths": {
+    "/weather/{city}": {
+      "get": {
+        "tags": ["Weather"],
+        "summary": "Get weather information for a city",
+        "description": "Retrieves current weather data from OpenWeatherMap API for the specified city",
+        "operationId": "getWeather",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "path",
+            "required": true,
+            "description": "City name (e.g., 'London', 'New York')",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "description": "Function key for authentication",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeatherResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - city parameter missing"
+          },
+          "404": {
+            "description": "Weather data not found for the specified city"
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing function key"
+          }
+        },
+        "security": [
+          {
+            "functionKey": []
+          }
+        ]
+      }
+    },
+    "/version": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Get API version information",
+        "description": "Returns version, Git SHA, and deployment information",
+        "operationId": "getVersion",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Health check endpoint",
+        "description": "Returns health status of the API",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "API is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "healthy"
+                    },
+                    "timestamp": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 1703001234
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "abc123def"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "tags": ["Monitoring"],
+        "summary": "Prometheus metrics endpoint",
+        "description": "Returns metrics in Prometheus format",
+        "operationId": "getMetrics",
+        "responses": {
+          "200": {
+            "description": "Metrics in Prometheus format",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WeatherResponse": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string",
+            "description": "City name",
+            "example": "London"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country code",
+            "example": "GB"
+          },
+          "temperature": {
+            "type": "number",
+            "format": "double",
+            "description": "Temperature in Celsius",
+            "example": 15.5
+          },
+          "feelsLike": {
+            "type": "number",
+            "format": "double",
+            "description": "Feels like temperature in Celsius",
+            "example": 14.2
+          },
+          "description": {
+            "type": "string",
+            "description": "Weather description",
+            "example": "partly cloudy"
+          },
+          "humidity": {
+            "type": "integer",
+            "description": "Humidity percentage",
+            "example": 72
+          },
+          "windSpeed": {
+            "type": "number",
+            "format": "double",
+            "description": "Wind speed in m/s",
+            "example": 3.5
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp of data",
+            "example": 1703001234
+          }
+        }
+      },
+      "VersionInfo": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "Application version",
+            "example": "1.0.0"
+          },
+          "gitSha": {
+            "type": "string",
+            "description": "Git commit SHA",
+            "example": "abc123def456"
+          },
+          "buildDate": {
+            "type": "string",
+            "description": "Build date",
+            "example": "2024-12-17T10:30:00Z"
+          },
+          "environment": {
+            "type": "string",
+            "description": "Environment name",
+            "example": "Production"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "functionKey": {
+        "type": "apiKey",
+        "name": "code",
+        "in": "query",
+        "description": "Azure Function key for authentication"
+      }
+    }
+  }
+}

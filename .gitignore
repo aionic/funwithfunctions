@@ -1,0 +1,97 @@
+# Azure Functions artifacts
+bin/
+obj/
+appsettings.json
+local.settings.json
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Azure Developer CLI
+.azure/
+!.azure/config.json
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.vsidx
+*.vspscc
+*_i.c
+*_p.c
+*.ilk
+*.meta
+*.obj
+*.pch
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.tlog
+*.vspscc
+*.vssscc
+.builds
+
+# Azure & Secrets
+*.publishsettings
+*.PublishSettings
+publish/
+*.pubxml
+*.azurePubxml
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+
+# NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+
+# Node (for any tooling)
+node_modules/
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Bicep generated
+*.bicep.json

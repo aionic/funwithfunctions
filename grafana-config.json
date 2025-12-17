@@ -1,0 +1,8 @@
+{
+  "functionAppUrl": "https://func-dev-svc2voxpoyhgo.azurewebsites.net",
+  "azureMonitorEndpoint": "https://mon-dev-drdgh9csh9aggpde.westus3.prometheus.monitor.azure.com",
+  "grafanaEndpoint": "https://grafana-dev-gvfhf4bzb0epfvd4.wus3.grafana.azure.com",
+  "functionKey": "<RETRIEVE_FROM_PORTAL>",
+  "timestamp": "2025-12-17 18:34:31",
+  "metricsEndpoint": "https://func-dev-svc2voxpoyhgo.azurewebsites.net/api/metrics"
+}
