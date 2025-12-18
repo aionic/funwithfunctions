@@ -7,7 +7,6 @@ A production-ready Azure Functions application demonstrating serverless API best
 [![CI](https://github.com/aionic/funwithfunctions/actions/workflows/ci.yml/badge.svg)](https://github.com/aionic/funwithfunctions/actions/workflows/ci.yml)
 [![Build and Test .NET](https://github.com/aionic/funwithfunctions/actions/workflows/dotnet-build.yml/badge.svg)](https://github.com/aionic/funwithfunctions/actions/workflows/dotnet-build.yml)
 [![Validate Bicep](https://github.com/aionic/funwithfunctions/actions/workflows/bicep-validate.yml/badge.svg)](https://github.com/aionic/funwithfunctions/actions/workflows/bicep-validate.yml)
-[![codecov](https://codecov.io/gh/aionic/funwithfunctions/branch/main/graph/badge.svg)](https://codecov.io/gh/aionic/funwithfunctions)
 
 ## Features
 
