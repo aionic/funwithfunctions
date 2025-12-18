@@ -1,314 +1,198 @@
 # Azure Functions Weather API
 
-![Fun with Functions](./fun-with-function.png)
+![Fun with Functions](./fun-with-functions.png)
 
-A production-ready Azure Functions application demonstrating best practices for serverless APIs with comprehensive monitoring, security, and observability features.
+A production-ready Azure Functions application demonstrating serverless API best practices with comprehensive monitoring and security.
 
-## 🌟 Features
+[![CI](https://github.com/aionic/funwithfunctions/actions/workflows/ci.yml/badge.svg)](https://github.com/aionic/funwithfunctions/actions/workflows/ci.yml)
+[![Build and Test .NET](https://github.com/aionic/funwithfunctions/actions/workflows/dotnet-build.yml/badge.svg)](https://github.com/aionic/funwithfunctions/actions/workflows/dotnet-build.yml)
+[![Validate Bicep](https://github.com/aionic/funwithfunctions/actions/workflows/bicep-validate.yml/badge.svg)](https://github.com/aionic/funwithfunctions/actions/workflows/bicep-validate.yml)
+[![codecov](https://codecov.io/gh/aionic/funwithfunctions/branch/main/graph/badge.svg)](https://codecov.io/gh/aionic/funwithfunctions)
 
-- **⚡ Serverless Architecture**: Built on Azure Functions Flex Consumption plan for automatic scaling
-- **🔒 Secure by Design**: Private endpoints for storage, managed identity authentication, function key authorization
-- **📊 Comprehensive Monitoring**: Application Insights, Prometheus metrics, and Azure Managed Grafana integration
-- **🔄 CI/CD Ready**: GitHub Actions workflows for automated build, test, and deployment
-- **📝 API Documentation**: Complete OpenAPI/Swagger specification
-- **🏷️ Version Tracking**: Git SHA stamping on every deployment with dedicated version endpoint
+## Features
 
-## 🏗️ Architecture
+- ⚡ **Azure Functions Flex Consumption** - Automatic scaling with .NET 8 isolated worker
+- 🔒 **Security** - Private endpoints, managed identity, Key Vault secrets
+- 📊 **Observability** - Application Insights + Prometheus + Grafana (auto-configured)
+- 🔄 **CI/CD** - GitHub Actions with unit tests and code coverage
+- 🏷️ **Versioning** - Git SHA stamped on every deployment
 
-See [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for detailed architecture documentation.
+## Architecture
 
-### Key Components
+**📖 [Detailed Architecture Documentation](./docs/ARCHITECTURE.md)**
 
-- **.NET 8 Isolated Worker**: Modern Azure Functions runtime
-- **Virtual Network**: Private connectivity for secure resource access
-- **Private Endpoints**: Storage account secured behind VNet
-- **Managed Identity**: Passwordless authentication to Azure resources
-- **Prometheus**: Custom metrics collection and export
-- **Azure Managed Grafana**: Visualization and dashboarding
+**Key Components:** Azure Functions (Flex) • VNet + Private Endpoints • App Insights • Azure Monitor Workspace • Managed Grafana • Key Vault
 
-## 🚀 Getting Started
+## Quick Start
 
 ### Prerequisites
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local)
-- [Azure Developer CLI (azd)](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd)
-- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
-- [PowerShell 7+](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell)
-- Weather API Key (see [Weather Provider Options](#weather-provider-options))
+- [Azure Functions Core Tools](https://docs.microsoft.com/azure/azure-functions/functions-run-local)
+- [Azure Developer CLI (azd)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)
+- Weather API Key ([WeatherAPI.com](https://www.weatherapi.com) recommended - no payment required)
 
 ### Local Development
 
-1. **Clone the repository**
-   ```powershell
-   git clone <repository-url>
-   cd funwithfunctions
-   ```
+```powershell
+# Clone and setup
+git clone <repository-url>
+cd funwithfunctions
 
-2. **Configure local settings**
+# Create local settings: src/local.settings.json
+# {
+#   "Values": {
+#     "WeatherApiKey": "your-api-key"
+#   }
+# }
 
-   **Option A: Using .env file (Recommended)**
-
-   The API key from your `.env` file will work for Azure deployment. For local development, create `src/local.settings.json`:
-   ```json
-   {
-     "Values": {
-       "WeatherApiKey": "xxxxxxxxxxxxxxxxxx"
-     }
-   }
-   ```
-
-   **Option B: Manual configuration**
-
-   Update `src/local.settings.json` with your weather API key directly.
-
-   See [Weather Provider Options](#weather-provider-options) for obtaining an API key.
-
-3. **Restore dependencies**
-   ```powershell
-   dotnet restore ./src/WeatherFunction.csproj
-   ```
-
-4. **Run locally**
-   ```powershell
-   cd src
-   func start
-   ```
-
-5. **Test the endpoints**
-   ```powershell
-   # Health check (anonymous)
-   Invoke-RestMethod -Uri "http://localhost:7071/api/health"
-
-   # Version info (anonymous)
-   Invoke-RestMethod -Uri "http://localhost:7071/api/version"
-
-   # Weather data (requires function key - use default local key)
-   Invoke-RestMethod -Uri "http://localhost:7071/api/weather/London"
-
-   # Prometheus metrics (anonymous)
-   Invoke-RestMethod -Uri "http://localhost:7071/api/metrics"
-   ```
-
-## 📦 Deployment
-
-### Using Azure Developer CLI (azd)
-
-The recommended deployment method using `azd`:
-
-1. **Create .env file with your API key**
-
-   Create a `.env` file in the project root:
-   ```bash
-   WEATHER_API_KEY=your-api-key-here
-   ```
-
-   The `.env` file is already in `.gitignore` - safe to store secrets locally.
-
-2. **Initialize azd environment**
-   ```powershell
-   azd init
-   ```
-
-3. **Login to Azure**
-   ```powershell
-   azd auth login
-   ```
-
-4. **Set environment variables**
-   ```powershell
-   azd env set AZURE_LOCATION westus3
-   ```
-
-5. **Deploy**
-   ```powershell
-   azd up
-   ```
-
-This will:
-- Provision all Azure resources (VNet, Storage, Function App, Key Vault, Monitoring)
-- Build and deploy the function code
-- **Automatically read your API key from .env and store it in Key Vault**
-- Configure all settings and connections
-- Stamp the deployment with the current Git SHA
-
-The `azd up` command runs a post-provision hook that:
-1. Reads `WEATHER_API_KEY` from your local `.env` file
-2. Securely stores it in Azure Key Vault
-3. Function App retrieves it using managed identity (no secrets in config!)
-
-### Using GitHub Actions
-
-1. **Configure secrets** in your GitHub repository:
-   - `AZURE_CREDENTIALS`: Azure service principal credentials
-   - `AZURE_LOCATION`: Target Azure region (e.g., 'westus3')
-   - `AZURE_FUNCTIONAPP_PUBLISH_PROFILE`: Function App publish profile
-
-2. **Trigger deployment**:
-   - Push to `main` branch, or
-   - Manually trigger the "Deploy to Azure" workflow
-
-## 📖 API Endpoints
-
-### Weather API
-
-- **GET** `/api/weather/{city}` - Get weather for a city (requires function key)
-  - Example: `/api/weather/London?code={function-key}`
-  - Response: Current weather data including temperature, humidity, wind speed
-
-### System Endpoints
-
-- **GET** `/api/version` - Get version and build information (anonymous)
-  - Returns: Git SHA, build date, environment
-
-- **GET** `/api/health` - Health check endpoint (anonymous)
-  - Returns: Health status and timestamp
-
-### Monitoring Endpoints
-
-- **GET** `/api/metrics` - Prometheus metrics (anonymous)
-  - Returns: Metrics in Prometheus text format
-
-## 🔐 Security
-
-- **Function Key Authentication**: Weather endpoint requires function key
-- **Azure Key Vault**: Secrets stored in Key Vault, referenced by Function App
-- **Managed Identity**: Function App uses managed identity to access Key Vault and Storage
-- **Private Endpoints**: Storage account accessible only via VNet
-- **HTTPS Only**: All traffic encrypted in transit
-- **TLS 1.2+**: Minimum TLS version enforced
-- **Public Access Disabled**: Storage account denies public network access
-- **RBAC Authorization**: Key Vault uses Azure RBAC for access control
-
-## 📊 Monitoring & Observability
-
-### Application Insights
-
-- Request telemetry
-- Dependency tracking
-- Exception logging
-- Performance metrics
-- Distributed tracing (W3C)
-
-### Prometheus Metrics
-
-- `function_invocations_total` - Function call counts by status
-- `function_duration_seconds` - Function execution duration
-- `weather_api_calls_total` - External API call counts
-- `weather_api_duration_seconds` - External API latency
-
-### Azure Managed Grafana
-
-Access the Grafana dashboard URL from deployment outputs to visualize:
-- Function performance metrics
-- Weather API call patterns
-- Error rates and trends
-- System health indicators
-
-## 🛠️ Development
-
-### Project Structure
-
-```
-funwithfunctions/
-├── .github/
-│   └── workflows/          # GitHub Actions CI/CD
-├── docs/                   # Documentation
-│   ├── ARCHITECTURE.md
-│   ├── TESTING.md
-│   └── swagger.json
-├── infra/                  # Bicep IaC
-│   ├── main.bicep
-│   ├── main.bicepparam
-│   └── modules/
-│       ├── core.bicep
-│       ├── function-app.bicep
-│       └── monitoring.bicep
-├── scripts/                # Demo and testing scripts
-│   ├── Test-WeatherApi.ps1
-│   └── Demo-Features.ps1
-└── src/                    # Function app code
-    ├── Functions/
-    ├── Models/
-    ├── Services/
-    ├── Program.cs
-    ├── host.json
-    └── WeatherFunction.csproj
+# Run
+dotnet restore ./src
+cd src && func start
 ```
 
-### Building
+**Test endpoints:** `http://localhost:7071/api/health` • `/api/version` • `/api/metrics` • `/api/weather/London`
+
+## Deployment
+
+### Azure Developer CLI (Recommended)
 
 ```powershell
-dotnet build ./src/WeatherFunction.csproj --configuration Release
+# Create .env file with your API key
+echo "WEATHER_API_KEY=your-api-key" > .env
+
+# Deploy everything
+azd auth login
+azd up
 ```
 
-### Testing
+**What happens:**
 
-See [TESTING.md](./docs/TESTING.md) for comprehensive testing guide.
+- ✅ Provisions all infrastructure (VNet, Storage, Functions, Key Vault, Monitoring)
+- ✅ Deploys function code with Git SHA version stamp
+- ✅ Stores API key securely in Key Vault
+- ✅ Configures Application Insights and Grafana
 
-## 📝 Configuration
+### CI/CD via GitHub Actions
+
+Configured workflows: **Bicep Validation** • **Build & Test** • **Code Coverage**
+
+See [GitHub Actions](./.github/workflows/) for automated deployment setup.
+
+## API Endpoints
+
+| Endpoint | Auth | Description |
+|----------|------|-------------|
+| `GET /api/weather/{city}` | Function Key | Weather data for specified city |
+| `GET /api/version` | Anonymous | Git SHA, build date, environment |
+| `GET /api/health` | Anonymous | Health status check |
+| `GET /api/metrics` | Anonymous | Prometheus metrics (text format) |
+
+**📖 [OpenAPI Specification](./docs/swagger.json)**
+
+## Testing
+
+```powershell
+# Run all tests
+dotnet test
+
+# With coverage
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+**Test Stack:** xUnit • FluentAssertions • Moq • Codecov
+
+**📖 [Testing Guide](./docs/TESTING.md)**
+
+## Security
+
+✅ Function key auth for weather API
+✅ Secrets in Key Vault (no hardcoded keys)
+✅ Managed identity for Azure resources
+✅ Private endpoints for storage
+✅ HTTPS/TLS 1.2+ enforced
+✅ RBAC-based access control
+
+## Monitoring
+
+### Automatic Setup
+
+After `azd up`, all monitoring is auto-configured:
+
+**Application Insights** → Real-time telemetry and distributed tracing
+**Azure Monitor Workspace** → Aggregates Prometheus metrics from `/api/metrics`
+**Azure Managed Grafana** → Pre-connected to Azure Monitor Workspace
+
+### Access Grafana
+
+```bash
+# Get Grafana URL
+az grafana show -n <grafana-name> -g rg-dev --query properties.endpoint -o tsv
+```
+
+1. Open Grafana URL in browser
+2. Azure Monitor Workspace data source is **already configured**
+3. Create dashboards using Prometheus queries
+
+### Available Metrics
+
+**Custom:** `function_invocations_total`, `function_duration_seconds`
+**Runtime:** GC stats, memory, CPU, HTTP connections
+**Framework:** ASP.NET Core, Kestrel, System.Net metrics
+
+### Alternative: Direct Prometheus Scraping
+
+If you prefer scraping metrics directly (instead of via Azure Monitor):
+
+1. Deploy a Prometheus server
+2. Configure it to scrape `https://your-function-app.azurewebsites.net/api/metrics`
+3. Connect Grafana to your Prometheus instance
+
+**Note:** The `/api/metrics` endpoint exports metrics in Prometheus text format but doesn't provide the Prometheus query API that Grafana needs. Azure Monitor Workspace handles this automatically.
+
+**📖 [Grafana Setup Details](./docs/GRAFANA-SETUP.md)**
+
+## Project Structure
+
+```text
+├── .github/workflows/      # CI/CD pipelines
+├── docs/                   # Architecture, testing, API docs
+├── infra/                  # Bicep infrastructure as code
+│   └── modules/           # Modular Bicep templates
+├── scripts/               # Demo and testing scripts
+├── src/                   # Function app (.NET 8)
+│   ├── Functions/         # HTTP trigger functions
+│   ├── Models/           # Data models
+│   └── Services/         # Business logic
+└── tests/                # Unit tests (xUnit)
+```
+
+## Configuration
+
+### Weather API Providers
+
+**Recommended: [WeatherAPI.com](https://www.weatherapi.com)** - 1M calls/month, no credit card required
+
+**Alternatives:**
+
+- [OpenWeatherMap](https://openweathermap.org) - 1K calls/day, requires payment info
+- [Open-Meteo](https://open-meteo.com) - Free, no API key
 
 ### Application Settings
 
-| Setting | Description | Required |
-|---------|-------------|----------|
-| `WeatherApiKey` | Weather API key (stored in Key Vault) | Yes |
-| `WeatherApiBaseUrl` | Weather API base URL | No (has default) |
-| `BUILD_SOURCEVERSION` | Git SHA (auto-set) | No |
-| `APPLICATIONINSIGHTS_CONNECTION_STRING` | App Insights connection | Yes (auto-configured) |
+| Setting | Source | Notes |
+|---------|--------|-------|
+| `WeatherApiKey` | Key Vault | Set via `.env` file during deployment |
+| `BUILD_SOURCEVERSION` | Auto-set | Git SHA from deployment |
+| `APPLICATIONINSIGHTS_CONNECTION_STRING` | Auto-configured | Managed identity auth |
 
-### Weather Provider Options
+## Resources
 
-This application is configured to work with OpenWeatherMap by default, but we recommend **WeatherAPI.com** as an alternative that doesn't require payment information:
+**Documentation:** [Architecture](./docs/ARCHITECTURE.md) • [Testing](./docs/TESTING.md) • [Grafana Setup](./docs/GRAFANA-SETUP.md) • [API Spec](./docs/swagger.json)
 
-#### Recommended: WeatherAPI.com (No Payment Info Required)
-- **Website**: <https://www.weatherapi.com/>
-- **Free Tier**: 1 million calls/month, no credit card required
-- **Features**: Current weather, forecast, astronomy, sports, and more
-- **Setup**:
-  1. Sign up at <https://www.weatherapi.com/signup.aspx>
-  2. Get your API key from the dashboard (instant activation)
-  3. Update `WeatherApiBaseUrl` to `https://api.weatherapi.com/v1`
-  4. Modify the service code to use WeatherAPI.com's response format
+**Microsoft Learn:**
+[Azure Functions](https://learn.microsoft.com/azure/azure-functions/) • [Flex Consumption](https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan) • [.NET Isolated](https://learn.microsoft.com/azure/azure-functions/dotnet-isolated-process-guide) • [Managed Grafana](https://learn.microsoft.com/azure/managed-grafana/)
 
-#### OpenWeatherMap (Payment Info Required)
-- **Website**: <https://openweathermap.org/>
-- **Free Tier**: 1,000 calls/day, requires credit card
-- **Features**: Current weather, forecasts, historical data
-- **Setup**:
-  1. Sign up at <https://openweathermap.org/api>
-  2. Add payment method (won't be charged for free tier)
-  3. Get your API key
-  4. Store in Key Vault (production) or local.settings.json (development)
+## License
 
-#### Other Options
-- **Open-Meteo**: Free, no API key required (<https://open-meteo.com/>)
-- **7Timer!**: Free astronomy and weather data (<https://www.7timer.info/>)
-- **wttr.in**: Simple weather API (<https://wttr.in/>)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🔗 Resources
-
-- [Azure Functions Documentation](https://docs.microsoft.com/en-us/azure/azure-functions/)
-- [.NET 8 Isolated Worker Guide](https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide)
-- [Azure Functions Flex Consumption Plan](https://learn.microsoft.com/en-us/azure/azure-functions/flex-consumption-plan)
-- [Prometheus .NET Client](https://github.com/prometheus-net/prometheus-net)
-- [Azure Managed Grafana](https://learn.microsoft.com/en-us/azure/managed-grafana/)
-
-## 📧 Support
-
-For issues and questions:
-- Open an issue on GitHub
-- Review the documentation in `/docs`
-- Check Application Insights logs in Azure Portal
+MIT License

@@ -1,8 +1,10 @@
 {
   "functionAppUrl": "https://func-dev-svc2voxpoyhgo.azurewebsites.net",
+  "instructions": "Grafana uses its managed identity to authenticate to the Function App",
+  "timestamp": "2025-12-18 10:26:31",
+  "authenticationMethod": "Managed Identity",
   "azureMonitorEndpoint": "https://mon-dev-drdgh9csh9aggpde.westus3.prometheus.monitor.azure.com",
+  "grafanaPrincipalId": "7b42f9b0-0c05-4f40-a3f9-e49484552d77",
   "grafanaEndpoint": "https://grafana-dev-gvfhf4bzb0epfvd4.wus3.grafana.azure.com",
-  "functionKey": "<RETRIEVE_FROM_PORTAL>",
-  "timestamp": "2025-12-17 18:34:31",
   "metricsEndpoint": "https://func-dev-svc2voxpoyhgo.azurewebsites.net/api/metrics"
 }

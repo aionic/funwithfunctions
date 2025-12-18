@@ -35,7 +35,14 @@ jobs:
       run: dotnet build ./src/WeatherFunction.csproj --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore /p:BUILD_SOURCEVERSION=${{ github.sha }}
 
     - name: Test
-      run: dotnet test ./src/WeatherFunction.csproj --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --verbosity normal
+      run: dotnet test ./tests/WeatherFunction.Tests.csproj --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      if: always()
+      with:
+        directory: ./coverage
+        fail_ci_if_error: false
 
     - name: Publish
       run: dotnet publish ./src/WeatherFunction.csproj --configuration ${{ env.BUILD_CONFIGURATION }} --output ./publish /p:BUILD_SOURCEVERSION=${{ github.sha }}

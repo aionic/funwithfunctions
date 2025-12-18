@@ -8,6 +8,9 @@ local.settings.json
 *.userosscache
 *.sln.docstates
 
+# Grafana configuration
+grafana-config.json
+
 # Azure Developer CLI
 .azure/
 !.azure/config.json
